@@ -46,4 +46,4 @@ Das System berechnet die Durchfahrtszeiten aller Züge für die gewählte Haltes
 
 **Ausgabe:** * Ausgabe der nächstmöglichen tatsächlichen Abfahrtszeit, die gleich oder nach der gewünschten Zeit liegt.
 
-Beispiel: Der Fahrgast kann ab 05:01 an Haltestelle B abfahren. Er gibt also "B" und "05:01" am Automaten ein und erhält die Information "05:02 Uhr" - die Abfahrtzeit der nächsten Bahn.
+Beispiel: Der Fahrgast geht zur Haltestelle B. Am Fahrkartenautomaten erhält er die Aufforderung zur Eingabe der Haltestelle "Start" und gibt "B" ein. Dann soll er die Zeit eingeben, ab der er abfahren kann, und gibt die aktuelle Zeit ein: "05:08". Er erhält daraufhin die Information "Die nächste Bahn fährt um 05:12 Uhr an Haltestelle B ab."
