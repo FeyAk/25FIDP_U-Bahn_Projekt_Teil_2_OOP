@@ -57,7 +57,11 @@ Im Fokus stehen die Implementierung von **Hin- und Rückfahrt** sowie **variable
 1. **Ausgabe:** Anzeige der nächsten tatsächlichen Abfahrtszeit.
  
   * Genauigkeit: Auf die Minute gerundet.
- 
+
+## Illustration U-Bahn Takt
+
+Siehe U-1 Abfahrten und Ankünfte.jpg
+
 ## Beispiel zur Berechnung der Ankunftszeit
  
 Ein Fahrgast möchte von **Langwasser Mitte** zur **Messe** und ist um **05:01 Uhr** am Bahnsteig.
