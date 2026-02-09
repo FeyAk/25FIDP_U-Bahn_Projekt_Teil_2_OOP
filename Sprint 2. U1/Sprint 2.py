@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from PIL import Image
 
 
+
 class U1Strecke:
     def __init__(self):
         # Struktur: (Name, Fahrzeit zur NÄCHSTEN Station in Min, Haltezeit an DIESER Station in Sek)
