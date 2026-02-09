@@ -41,7 +41,8 @@ Ziel dieses Sprints ist die fachliche Vervollständigung der Reiseauskunft. Der 
 ---
 
 ## Abnahmekriterien für das Inkrement (Code)
-1.  Eingaben werden korrekt verarbeitet.
-2.  Die Ankunftszeit an der Zielstation wird korrekt ausgegeben.
-3.  Die Preisberechnung liefert für alle Kombinationen (Ticket-Typ, Rabatt, Zahlart) korrekte Ausgaben.
+1.  Der Code jeder Gruppe muss auf der Fork dieser Gruppe zugänglich sein.
+2.  Eingaben werden korrekt verarbeitet.
+3.  Die Ankunftszeit an der Zielstation wird korrekt ausgegeben.
+4.  Die Preisberechnung liefert für alle Kombinationen (Ticket-Typ, Rabatt, Zahlart) korrekte Ausgaben.
 4.  Der Fahrgast erhält eine abschließende Übersicht aller relevanten Reisedaten.
