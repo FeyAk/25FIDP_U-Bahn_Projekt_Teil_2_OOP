@@ -1,7 +1,7 @@
 import math
-import re
+import os
 from datetime import datetime, timedelta
-from PIL import Image  # Wichtig für das Pop-up
+from PIL import Image
 
 
 class U1Strecke:
@@ -19,43 +19,41 @@ class U1Strecke:
         ]
 
     def zeige_netzplan(self):
-        """Öffnet die Datei netzplan.png im Standard-Bildbetrachter."""
+        """Versucht das Bild netzplan.png zu öffnen."""
         try:
             img = Image.open("netzplan.png")
             img.show()
-        except FileNotFoundError:
-            print("\n[System-Info] Netzplan.png nicht gefunden. Fahre ohne Bild fort...")
+        except Exception:
+            print("\n[Info] Netzplan.png konnte nicht automatisch geöffnet werden.")
 
     def bereinige_string(self, text):
-        """User Story 3.1: Normalisierung von Umlauten und Abkürzungen."""
+        """User Story 3.1: Normalisierung (Umlaute, ß, Leerzeichen)."""
         text = text.lower().strip()
-        replacements = {
-            "ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss",
-            "hauptbahnhof": "hbf", "bahnhof": "hbf", ".": ""
-        }
+        replacements = {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss",
+                        "hauptbahnhof": "hbf", "bahnhof": "hbf", ".": ""}
         for alt, neu in replacements.items():
             text = text.replace(alt, neu)
         return text
 
     def finde_index(self, eingabe):
-        """User Story 3.1: Findet Station trotz kleiner Tippfehler oder Abkürzungen."""
-        eingabe_clean = self.bereinige_string(eingabe)
-        if eingabe_clean.isdigit():
-            idx = int(eingabe_clean) - 1
+        """User Story 3.1: Findet Index via Nummer (1-23) oder Name."""
+        clean_in = self.bereinige_string(eingabe)
+        if clean_in.isdigit():
+            idx = int(clean_in) - 1
             return idx if 0 <= idx < len(self.stationen_daten) else None
 
         for i, (name, _, _) in enumerate(self.stationen_daten):
-            if eingabe_clean in self.bereinige_string(name):
+            if clean_in in self.bereinige_string(name):
                 return i
         return None
 
-    def berechne_reise(self, start_idx, ziel_idx):
-        """Berechnet Offset für Abfahrt und Gesamtfahrtdauer für Ankunft."""
+    def berechne_reise_details(self, start_idx, ziel_idx):
+        """Berechnet Offset für Abfahrt und Fahrtdauer für Ankunft."""
         offset_sek = 0
         fahrt_dauer_sek = 0
         richtung = 1 if ziel_idx > start_idx else -1
 
-        # Offset vom Linienstart (Langwasser oder Fürth) bis zur Einstiegsstation
+        # Offset vom Linienstart bis zur Einstiegsstation
         if richtung == 1:
             for i in range(start_idx):
                 offset_sek += (self.stationen_daten[i][1] * 60) + self.stationen_daten[i + 1][2]
@@ -63,7 +61,7 @@ class U1Strecke:
             for i in range(len(self.stationen_daten) - 1, start_idx, -1):
                 offset_sek += (self.stationen_daten[i - 1][1] * 60) + self.stationen_daten[i - 1][2]
 
-        # Fahrtdauer zwischen Start und Ziel
+        # Fahrtdauer zwischen den Stationen
         temp_idx = start_idx
         while temp_idx != ziel_idx:
             if richtung == 1:
@@ -76,89 +74,108 @@ class U1Strecke:
 
 
 class TarifRechner:
-    """User Story 3.2: Preislogik basierend auf Stationen und Konditionen."""
+    """User Story 3.2: Preislogik mit Zuschlägen und Rabatten."""
 
     @staticmethod
-    def berechne_preis(stationen, mehrfahrt, sozial, bar):
-        # Basispreis-Ermittlung
-        if stationen <= 3:
-            basis = 1.50 if not mehrfahrt else 5.00
-        elif stationen <= 8:
-            basis = 2.00 if not mehrfahrt else 7.00
+    def berechne(anzahl_stationen, ist_mehrfahrt, hat_sozial, ist_bar):
+        # Basispreise
+        if anzahl_stationen <= 3:
+            basis = 1.50 if not ist_mehrfahrt else 5.00
+        elif anzahl_stationen <= 8:
+            basis = 2.00 if not ist_mehrfahrt else 7.00
         else:
-            basis = 3.00 if not mehrfahrt else 10.00
+            basis = 3.00 if not ist_mehrfahrt else 10.00
 
         preis = basis
-        if not mehrfahrt: preis *= 1.10  # Einzelticket-Zuschlag
-        if sozial: preis *= 0.80  # Sozialrabatt
-        if bar: preis *= 1.15  # Bar-Zuschlag
+        if not ist_mehrfahrt: preis *= 1.10  # Einzelticket-Zuschlag
+        if hat_sozial:       preis *= 0.80  # Sozialrabatt
+        if ist_bar:          preis *= 1.15  # Bar-Zuschlag
         return round(preis, 2)
 
 
 class U1Service:
     def __init__(self):
         self.strecke = U1Strecke()
-        self.takt_sek = 10 * 60
+        self.takt_sek = 600  # 10 Minuten
         self.betrieb_start = datetime.strptime("05:00", "%H:%M")
 
-    def hole_eingabe(self, prompt):
+    def zeige_stationen_liste(self):
+        print("\nLINIE U1 - STATIONENÜBERSICHT:")
+        print("-" * 45)
+        for i in range(0, len(self.strecke.stationen_daten), 2):
+            s1 = f"{i + 1:2}: {self.strecke.stationen_daten[i][0]}"
+            s2 = ""
+            if i + 1 < len(self.strecke.stationen_daten):
+                s2 = f"{i + 2:2}: {self.strecke.stationen_daten[i + 1][0]}"
+            print(f"{s1:<22} | {s2}")
+        print("-" * 45)
+
+    def hole_station(self, prompt):
         while True:
             val = input(prompt)
             idx = self.strecke.finde_index(val)
             if idx is not None: return idx
-            print("Station unbekannt. Bitte erneut eingeben (z.B. 'Hbf' oder '12').")
+            print("Eingabe ungültig. Bitte Name oder Nummer (1-23) eingeben.")
 
-    def hole_boolean(self, frage):
+    def hole_ja_nein(self, frage):
         while True:
             ans = input(frage + " (j/n): ").lower()
             if ans in ['j', 'ja']: return True
             if ans in ['n', 'nein']: return False
 
     def run(self):
-        # POP-UP beim Start
         self.strecke.zeige_netzplan()
+        self.zeige_stationen_liste()
 
-        print("\n--- VAG U1 FAHRPLAN & TICKETS ---")
-        idx_s = self.hole_eingabe("Start-Station: ")
-        idx_z = self.hole_eingabe("Ziel-Station:  ")
+        print("\n--- NEUE REISEPLANUNG ---")
+        idx_s = self.hole_station("START: ")
+        idx_z = self.hole_station("ZIEL:  ")
+
+        while idx_s == idx_z:
+            print("Start und Ziel dürfen nicht identisch sein.")
+            idx_z = self.hole_station("ZIEL:  ")
 
         t_str = input("Wann sind Sie am Gleis? (HH:MM): ")
         try:
-            wunschzeit = datetime.strptime(t_str, "%H:%M")
+            wunsch = datetime.strptime(t_str, "%H:%M")
         except:
-            wunschzeit = datetime.now()
+            wunsch = datetime.now()
 
-        # Zeitberechnung
-        offset, dauer = self.strecke.berechne_reise(idx_s, idx_z)
-        erste_ab = self.betrieb_start + timedelta(seconds=offset)
+        # Zeitlogik
+        offset, dauer = self.strecke.berechne_reise_details(idx_s, idx_z)
+        startzeit_linie = self.betrieb_start + timedelta(seconds=offset)
 
-        if wunschzeit <= erste_ab:
-            abfahrt = erste_ab
+        if wunsch <= startzeit_linie:
+            abfahrt = startzeit_linie
         else:
-            wait = math.ceil((wunschzeit - erste_ab).total_seconds() / self.takt_sek)
-            abfahrt = erste_ab + timedelta(seconds=wait * self.takt_sek)
+            diff = (wunsch - startzeit_linie).total_seconds()
+            anzahl_takte = math.ceil(diff / self.takt_sek)
+            abfahrt = startzeit_linie + timedelta(seconds=anzahl_takte * self.takt_sek)
 
         ankunft = abfahrt + timedelta(seconds=dauer)
 
-        # Tarifberechnung
-        ist_mf = self.hole_boolean("Mehrfahrtenkarte?")
-        ist_soz = self.hole_boolean("Sozialrabatt?")
-        ist_bar = self.hole_boolean("Barzahlung?")
+        # Tariflogik
+        print("\n--- TARIFINFORMATIONEN ---")
+        ist_mf = self.hole_ja_nein("Mehrfahrtenkarte (4 Fahrten)?")
+        ist_soz = self.hole_ja_nein("Anspruch auf Sozialrabatt?")
+        ist_bar = self.hole_ja_nein("Zahlung in bar?")
 
-        stationen = abs(idx_z - idx_s)
-        preis = TarifRechner.berechne_preis(stationen, ist_mf, ist_soz, ist_bar)
+        anzahl_stat = abs(idx_z - idx_s)
+        preis = TarifRechner.berechne(anzahl_stat, ist_mf, ist_soz, ist_bar)
 
-        # Ausgabe
-        print("\n" + "=" * 35)
-        print(f"IHR REISEPLAN")
-        print("-" * 35)
-        print(f"VON:      {self.strecke.stationen_daten[idx_s][0]}")
-        print(f"NACH:     {self.strecke.stationen_daten[idx_z][0]}")
-        print(f"ABFAHRT:  {abfahrt.strftime('%H:%M')} Uhr")
-        print(f"ANKUNFT:  {ankunft.strftime('%H:%M')} Uhr")
-        print(f"PREIS:    {preis:,.2f} €".replace(".", ","))
-        print(f"STATUS:   Gültig am {datetime.now().strftime('%d.%m.%Y')}")
-        print("=" * 35)
+        # Zusammenfassung (User Story 3.3)
+        print("\n" + "=" * 45)
+        print("VAG REISEAUSKUNFT - TICKET-QUITTUNG")
+        print("-" * 45)
+        print(f"STRECKE:   {self.strecke.stationen_daten[idx_s][0]} -> {self.strecke.stationen_daten[idx_z][0]}")
+        print(f"ABFAHRT:   {abfahrt.strftime('%H:%M')} Uhr")
+        print(f"ANKUNFT:   {ankunft.strftime('%H:%M')} Uhr")
+        print(f"DAUER:     {int(dauer / 60)} Min. ({anzahl_stat} Stationen)")
+        print("-" * 45)
+        print(f"TICKET:    {'Mehrfahrt' if ist_mf else 'Einzelfahrt'} (Tarifstufe: {anzahl_stat})")
+        print(f"PREIS:     {preis:,.2f} €".replace(".", ","))
+        print(f"DATUM:     {datetime.now().strftime('%d.%m.%Y %H:%M')}")
+        print("=" * 45)
 
 
 if __name__ == "__main__":
