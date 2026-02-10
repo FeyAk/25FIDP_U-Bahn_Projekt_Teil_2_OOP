@@ -57,20 +57,20 @@ Ziel dieses Sprints ist die fachliche Vervollständigung der Reiseauskunft. Der 
 
 ## Liste der Testfälle für die Abnahme
 
-| Nr. | Eingabe-Typ                | Benutzereingabe   | Erwartete Ausgabe / Reaktion | Logik-Prüfung |
-| :--- |:---------------------------|:------------------| :--- | :--- |
-| 1 | **exakte Übereinstimmung** | `Messe`           | `Messe` erkannt | Standardfall |
-| 2 | **Mapping & Punkt**        | `Fürth Hbf.`      | `Fürth Hauptbahnhof` erkannt | Abkürzung mit Punkt |
-| 3 | **Kleinschreibung**        | `aufseßplatz`     | `Aufseßplatz` erkannt | Case-Insensitivity |
-| 4 | **ß-Ersetzung**            | `Aufsessplatz`    | `Aufseßplatz` erkannt | ß vs. ss Handling |
-| 5 | **Umlaute**                | `Baerenchanze`    | `Bärenschanze` erkannt | ae -> ä Konvertierung |
-| 6 | **Tippfehler (80%)**       | `Maffeiplat`      | `Maffeiplatz` erkannt | Fehlendes 'z' (Fuzzy) |
-| 7 | **Tippfehler (80%)**       | `Jakobinenstrase` | `Jakobinenstraße` erkannt | Buchstabendreher/Fehler |
-| 8 | **Leerzeichen**            | `  Gostenhof  `   | `Gostenhof` erkannt | Trim / Strip Funktion |
-| 9 | **langer Name**            | `Langwasser Nord` | `Langwasser Nord` erkannt | Mehrwort-Erkennung |
-| 10 | **nicht eindeutig**        | `Hauptbahnhof`    | `Hauptbahnhof` erkannt | Korrekte Wahl (nicht Fürth) |
+| Nr. | Eingabe-Typ                | Benutzereingabe   | Erwartete Ausgabe / Reaktion | Logik-Prüfung                    |
+| :--- |:---------------------------|:------------------| :--- |:---------------------------------|
+| 1 | **exakte Übereinstimmung** | `Messe`           | `Messe` erkannt | Standardfall                     |
+| 2 | **Mapping & Punkt**        | `Fürth Hbf.`      | `Fürth Hauptbahnhof` erkannt | Abkürzung mit Punkt              |
+| 3 | **Kleinschreibung**        | `aufseßplatz`     | `Aufseßplatz` erkannt | Klein- und Großschreibung        |
+| 4 | **ß-Ersetzung**            | `Aufsessplatz`    | `Aufseßplatz` erkannt | ß vs. ss Handling                |
+| 5 | **Umlaute**                | `Baerenchanze`    | `Bärenschanze` erkannt | ae -> ä Konvertierung            |
+| 6 | **Tippfehler (80%)**       | `Maffeiplat`      | `Maffeiplatz` erkannt | Fehlendes 'z'                    |
+| 7 | **Tippfehler (80%)**       | `Jakobinenstrase` | `Jakobinenstraße` erkannt | Buchstabendreher/Fehler          |
+| 8 | **Leerzeichen**            | `  Gostenhof  `   | `Gostenhof` erkannt | Trim / Strip Funktion            |
+| 9 | **langer Name**            | `Langwasser Nord` | `Langwasser Nord` erkannt | Mehrwort-Erkennung               |
+| 10 | **nicht eindeutig**        | `Hauptbahnhof`    | `Hauptbahnhof` erkannt | Korrekte Wahl (nicht Fürth)      |
 | 11 | **zu ungenau**             | `Wasser`          | Fehlermeldung | < 80% (zu viele Treffer möglich) |
-| 12 | **linienfremd**            | `Flughafen`       | Fehlermeldung | Station existiert nicht auf U1 |
+| 12 | **linienfremd**            | `Flughafen`       | Fehlermeldung | Station existiert nicht auf U1   |
 
 Erläuterung zu Testfall 10 & 12:
 
