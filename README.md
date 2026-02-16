@@ -5,7 +5,7 @@ Ziel dieses Lernprojekts ist die Erstellung eines U-Bahn-Fahrgastinformationssys
 
 Dateien im Hauptverzeichnis:
 
->    Abnahmeprotokoll für Sprint und Gruppen.xlsx: Vorlage für die Abnahmeprotokolle, die vor Abschluss der Sprints für jede Gruppe ausgefüllt werden.
+>    *Abnahmeprotokoll für Sprint und Gruppen.xlsx:* Vorlage für die Abnahmeprotokolle, die vor Abschluss der Sprints für jede Gruppe ausgefüllt werden.
 >
 >    *Backlog_gesamt_....md:*    enthält alle Userstories, die bis jetzt angedacht sind
 > 
@@ -15,7 +15,7 @@ Dateien im Hauptverzeichnis:
 > 
 >    *U-Bahn Haltestellen und Fahrtzeiten.xlsx:*    enthält eineExcel-Tabelle, mit dem man die Fahrtdaten schnell berechnet werden können
 > 
->    *u_bahn_netz_v1.png:      enthält den Netzplan*
+>    *u_bahn_netz_v1.png:*      enthält den Netzplan
 
 Die Unterordner enthalten jeweils die Backlogs für die einzelnen Sprints sowie dazugehörige notwendige bzw. hilfreiche Informationen
 
