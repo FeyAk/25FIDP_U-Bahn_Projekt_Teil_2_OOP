@@ -1,11 +1,11 @@
 import difflib
 
 
-class StationData:
-    """İstasyon verileri ve dil işleme (Normalizasyon)."""
+class StationsDaten:
+    """Verwaltet die U1-Stationen und die Normalisierung der Eingabe."""
 
     def __init__(self):
-        self.list = [
+        self.liste = [
             "Langwasser Süd", "Gemeinschaftshaus", "Langwasser Mitte",
             "Scharfreiterring", "Langwasser Nord", "Messe", "Bauernfeindstraße",
             "Hasenbuck", "Frankenstraße", "Maffeiplatz", "Aufseßplatz",
@@ -15,87 +15,99 @@ class StationData:
         ]
         self.mapping = {"hbf": "hauptbahnhof", "str": "strasse", "fr": "friedrich"}
 
-    def normalize(self, text):
+    def normalisieren(self, text):
         t = text.strip().lower().replace("-", " ")
         t = t.replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
         return " ".join([self.mapping.get(w.rstrip("."), w) for w in t.split()])
 
-    def find(self, query):
-        norm_q = self.normalize(query)
-        best_match, max_rate = None, 0.0
-        for s in self.list:
-            norm_s = self.normalize(s)
+    def finden(self, abfrage):
+        norm_q = self.normalisieren(abfrage)
+        beste_uebereinstimmung, max_rate = None, 0.0
+        for s in self.liste:
+            norm_s = self.normalisieren(s)
             if norm_q == norm_s: return s
             rate = difflib.SequenceMatcher(None, norm_q, norm_s).ratio()
-            if rate > max_rate: max_rate, best_match = rate, s
-        return best_match if max_rate >= 0.8 else None
+            if rate > max_rate: max_rate, beste_uebereinstimmung = rate, s
+        return beste_uebereinstimmung if max_rate >= 0.8 else None
 
 
 class Ticket:
-    """Bir biletin tüm bilgilerini taşıyan veri yapısı."""
+    """Datenstruktur für eine Fahrkarte."""
 
-    def __init__(self, start, ziel, stations_count, price):
+    def __init__(self, start, ziel, stationen_anzahl, preis):
         self.start = start
         self.ziel = ziel
-        self.duration = stations_count * 2
-        self.price = price
+        self.dauer = stationen_anzahl * 2
+        self.preis = preis
 
-    def display(self):
+    def anzeigen(self):
         print("\n" + "=" * 30 + "\nREISEZUSAMMENFASSUNG")
         print(f"Start:    {self.start}\nZiel:     {self.ziel}")
-        print(f"Dauer:    ca. {self.duration} Min\nEndpreis: {self.price:.2f} €")
+        print(f"Dauer:    ca. {self.dauer} Min\nEndpreis: {self.preis:.2f} €")
         print("=" * 30)
 
 
-class PricingEngine:
-    """Fiyatlandırma mantığı ve kurallar."""
+class PreisBerechnung:
+    """Berechnungslogik nach Szenario A (Additiv)."""
 
-    def calculate(self, count):
-        # Mesafe kategorisi
-        if count <= 3:
-            base = (1.50, 5.00)
-        elif count <= 8:
-            base = (2.00, 7.00)
+    def berechne(self, anzahl):
+        # Grundpreise basierend auf Distanz
+        if anzahl <= 3:
+            preise = {"e": 1.50, "m": 5.00}
+        elif anzahl <= 8:
+            preise = {"e": 2.00, "m": 7.00}
         else:
-            base = (3.00, 10.00)
+            preise = {"e": 3.00, "m": 10.00}
 
         typ = input("Einzelticket (e) oder Mehrfahrtenticket (m)? ").lower()
         sozial = input("Haben Sie Anspruch auf Sozialrabatt? (j/n) ").lower()
         zahlung = input("Zahlart: Bar (b) oder Karte (k)? ").lower()
 
-        p = base[0] if typ == 'e' else base[1]
-        if typ == 'e': p *= 1.10
-        if sozial == 'j': p *= 0.80
-        if zahlung == 'b': p *= 1.15
-        return round(p, 2)
+        grundpreis = preise.get(typ, preise['e'])
+
+        # Szenario A: Faktoren werden addiert/subtrahiert
+        faktor = 1.0
+
+        # Aufschlag für Einzelticket (um auf die Testfall-Werte wie 1.65€ zu kommen)
+        if typ == 'e':
+            faktor += 0.10  # +10%
+
+        if sozial == 'j':
+            faktor -= 0.20  # -20% Sozialrabatt
+
+        if zahlung == 'b':
+            faktor += 0.15  # +15% Barzahlungsaufschlag
+
+        # Endpreis = Grundpreis * Gesamtfaktor
+        endpreis = grundpreis * faktor
+        return round(endpreis, 2)
 
 
-class App:
-    """Uygulama akışı (Main Controller)."""
+class FahrplanApp:
+    """Hauptsteuerung der Anwendung."""
 
     def __init__(self):
-        self.db = StationData()
-        self.engine = PricingEngine()
+        self.daten = StationsDaten()
+        self.rechner = PreisBerechnung()
 
-    def get_valid_station(self, prompt):
+    def get_station_validierung(self, prompt):
         while True:
-            name = self.db.find(input(prompt))
+            name = self.daten.finden(input(prompt))
             if name: return name
-            print("Station nicht erkannt.")
+            print("Station nicht erkannt. Bitte versuchen Sie es erneut.")
 
-    def start(self):
-        print("--- U-Bahn Nürnberg/Fürth (U1) ---")
-        s1 = self.get_valid_station("Start: ")
-        s2 = self.get_valid_station("Ziel: ")
+    def starten(self):
+        print("--- U-Bahn Nürnberg/Fürth (U1) Ticket-System ---")
+        start = self.get_station_validierung("Start: ")
+        ziel = self.get_station_validierung("Ziel: ")
 
-        count = abs(self.db.list.index(s1) - self.db.list.index(s2))
-        final_price = self.engine.calculate(count)
+        anzahl = abs(self.daten.liste.index(start) - self.daten.liste.index(ziel))
+        preis = self.rechner.berechne(anzahl)
 
-        # Bilet nesnesini oluştur ve göster
-        ticket = Ticket(s1, s2, count, final_price)
-        ticket.display()
+        ticket = Ticket(start, ziel, anzahl, preis)
+        ticket.anzeigen()
 
 
 if __name__ == "__main__":
-    ReiseApp = App()
-    ReiseApp.start()
+    app = FahrplanApp()
+    app.starten()
