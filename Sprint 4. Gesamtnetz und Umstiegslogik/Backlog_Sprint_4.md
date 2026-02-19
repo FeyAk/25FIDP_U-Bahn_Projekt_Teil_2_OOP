@@ -1,6 +1,8 @@
 # Sprint 4 Backlog
 
 ---
+> ## HINWEIS bis Mittwoch, 25.02., bitte erstmal auf Implementierung des Netzplans und Umstiegslogik konzentrieren!
+---
 
 ## Zusammenfassung
 Der wesentliche Schwerpunkt im Sprint ist die Implementierung der Logik für den Umstieg. Ein zweiter Schwerpunkt ist die Erstellung eines Adapters.
