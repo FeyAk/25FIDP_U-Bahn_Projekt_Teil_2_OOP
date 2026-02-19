@@ -56,7 +56,7 @@ Im Fokus stehen die Implementierung von **Hin- und Rückfahrt** sowie **variable
   * Berechnung der Ankunfts- und Abfahrtszeiten erfolgt unter **striktem Einbezug der Haltezeiten**.
   * Es können Informationen zu Fahrten in beide Richtungen abgefragt werden.
  
-1. **Ausgabe:** Anzeige der nächsten tatsächlichen Abfahrtszeit.
+4. **Ausgabe:** Anzeige der nächsten tatsächlichen Abfahrtszeit.
  
   * Genauigkeit: Auf die Minute gerundet.
 
