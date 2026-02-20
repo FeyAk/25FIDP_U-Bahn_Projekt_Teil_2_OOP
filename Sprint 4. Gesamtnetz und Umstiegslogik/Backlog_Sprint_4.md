@@ -61,9 +61,9 @@ Der wesentliche Schwerpunkt im Sprint ist die Implementierung der Logik für den
 * **4.5.3** Das Testskript kann alle automatisierten Testfälle (z. B. aus US 4.1 bis 4.4) ohne manuelle Anpassungen am Gruppen-Code ausführen.
 * **4.5.4** Der Adapter fängt Inkompatibilitäten ab und liefert im Fehlerfall standardisierte Rückmeldungen an die Testumgebung.
 ```
----
 
-### Adapter 
+Adapter
+
 Eingabe:
 Start-Haltestelle exakt so geschrieben wie vorgegeben: eingabe_start = <Haltestellenname>
 Ziel-Haltestelle ebenso: eingabe_ziel = <Haltestellenname>
