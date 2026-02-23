@@ -91,12 +91,12 @@ if __name__ == "__main__":
     
     # Aufruf der Logik mit den manuellen Eingaben
     print(berechne_fahrt(s, z, t))
-´´´
+```
 
 ### 4.6.2 Funktionsweise des Adapters
 Der Adapter importiert eure Logik-Datei. Da der input()-Teil unter if __name__ == "__main__" steht, wird er beim Import ignoriert. Das Testskript bleibt nicht hängen.
 
-´´´
+```
 Python
 # So greift der Adapter auf euren Code zu:
 
@@ -107,7 +107,7 @@ class adapter_klasse:
         # Der Adapter übergibt die Testwerte direkt an eure Funktion
         ergebnis = berechnung.berechne_fahrt(eingabe_start, ...)
         return {"preis_endbetrag": ergebnis, ...}
-´´´
+```
 
 ## 4.7 Spezifikation Adapter-Schnittstelle
 
